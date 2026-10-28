@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F2D2A" />
+    <meta name="description" content="Offline sales and debt ledger for small shops." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Market Keeper</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-label="Market Keeper MK logo">
+            <svg viewBox="0 0 32 32" role="img" aria-hidden="true">
+              <circle cx="16" cy="16" r="16" fill="#0F2D2A" />
+              <path d="M7 23V9l5 7 5-7v14M17 9v14m0-7 8-7m-8 7 8 7" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.15" />
+            </svg>
+          </div>
+          <div>
+            <h1>Market Keeper</h1>
+          </div>
+        </div>
+        <div id="networkStatus" class="offline-badge" aria-live="polite"><span id="statusDot" class="status-dot"></span><span id="statusText">Offline</span></div>
+      </header>
+
+      <section class="day-card" aria-labelledby="todayTotalLabel">
+        <div>
+          <p id="todayTotalLabel" class="eyebrow">TODAY'S TAKE</p>
+          <p id="todayTotal" class="day-total">₦0</p>
+          <p id="todayDate" class="date-line">Today</p>
+        </div>
+        <div class="day-card-note"><span class="note-line"></span>Every sale<br />stays on this phone.</div>
+      </section>
+
+      <section class="quick-actions" aria-label="Add a sale">
+        <button id="cashSaleButton" class="action-button cash-button" type="button">
+          <span class="action-icon">+</span>
+          <span class="action-text">CASH SALE</span>
+          <span class="action-subtext">Paid now</span>
+        </button>
+        <button id="debtSaleButton" class="action-button debt-button" type="button">
+          <span class="action-icon">+</span>
+          <span class="action-text">DEBT SALE</span>
+          <span class="action-subtext">Collect later</span>
+        </button>
+      </section>
+
+      <section class="ledger-section" aria-label="Ledger">
+        <nav class="tab-bar" aria-label="Ledger views">
+          <button id="salesTab" class="tab-button is-active" type="button" aria-selected="true">
+            <span>Today's Sales</span><span id="salesCount" class="tab-count">0</span>
+          </button>
+          <button id="owingTab" class="tab-button" type="button" aria-selected="false">
+            <span>Owing Me</span><span id="owingCount" class="tab-count">0</span>
+          </button>
+        </nav>
+        <div id="ledgerContent" class="ledger-content"></div>
+      </section>
+
+      <footer class="bottom-actions">
+        <button id="micButton" class="voice-button" type="button">
+          <span class="mic-icon" aria-hidden="true"><span></span></span>
+          <span><strong>Speak a sale</strong><small>Tap and say what sold</small></span>
+        </button>
+        <div class="close-day-stack">
+          <button id="closeDayButton" class="close-day-button" type="button">Close Shop — Clear Today</button>
+          <button id="historyButton" class="history-link" type="button">See History (<span id="historyCount">0</span> days)</button>
+        </div>
+      </footer>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <div id="saleModal" class="modal-backdrop" hidden>
+      <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <div>
+            <p id="modalKicker" class="eyebrow">NEW SALE</p>
+            <h2 id="modalTitle">Cash sale</h2>
+          </div>
+          <button id="closeModalButton" class="icon-button" type="button" aria-label="Close sale form">×</button>
+        </div>
+
+        <div id="voiceStatus" class="voice-status" hidden>
+          <span class="voice-pulse" aria-hidden="true"></span>
+          <div><strong id="voiceStatusTitle">Listening…</strong><span id="voiceStatusText">Say: Sold rice 2000 to Emeka debt</span></div>
+          <button id="retryVoiceButton" class="voice-retry" type="button" hidden>Retry</button>
+        </div>
+
+        <form id="saleForm" novalidate>
+          <div id="voiceTypeChooser" class="type-chooser" hidden>
+            <span class="field-label">SALE TYPE</span>
+            <div class="type-options">
+              <button id="voiceCashType" class="type-option is-selected" type="button">Cash</button>
+              <button id="voiceDebtType" class="type-option" type="button">Debt</button>
+            </div>
+          </div>
+
+          <label class="field-label" for="itemInput">ITEM NAME</label>
+          <input id="itemInput" class="text-input" type="text" name="item" placeholder="e.g. Rice, Milo, Peak milk" autocomplete="off" required />
+
+          <label class="field-label" for="amountInput">AMOUNT</label>
+          <div class="amount-input-wrap"><span>₦</span><input id="amountInput" class="text-input amount-input" type="number" name="amount" inputmode="decimal" min="1" step="1" placeholder="0" required /></div>
+
+          <div id="customerField" hidden>
+            <label class="field-label" for="customerInput">CUSTOMER NAME</label>
+            <input id="customerInput" class="text-input" type="text" name="customer" placeholder="Who is taking it?" autocomplete="name" />
+          </div>
+
+          <p id="formHint" class="form-hint">Cash sales are saved instantly on this phone.</p>
+          <div class="modal-actions">
+            <button id="cancelModalButton" class="secondary-button" type="button">Not now</button>
+            <button class="primary-button" type="submit">Save sale</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="historyModal" class="modal-backdrop" hidden>
+      <section class="modal-sheet history-sheet" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">PAST DAYS</p>
+            <h2 id="historyTitle">Sales history</h2>
+          </div>
+          <button id="closeHistoryButton" class="icon-button" type="button" aria-label="Close sales history">×</button>
+        </div>
+        <div id="historyContent" class="history-content"></div>
+      </section>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

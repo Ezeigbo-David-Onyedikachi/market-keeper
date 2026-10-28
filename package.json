@@ -1,0 +1,9 @@
+{
+  "name": "shopledger",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 3000 --bind 0.0.0.0",
+    "build": "mkdir -p dist && cp index.html styles.css app.js sw.js icon.svg public/manifest.webmanifest public/manus-routes.json dist/"
+  }
+}
